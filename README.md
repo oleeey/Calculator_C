@@ -1,1 +1,1 @@
-# Calculator_C
+# Simple Command-Line Calculator in C

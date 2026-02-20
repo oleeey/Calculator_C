@@ -4,15 +4,22 @@
 #include <ctype.h>
 
 char* getUserInput();
-void removeWhiteSpace(char* input);
+int removeWhiteSpace(char* input);
 int checkInput(char* input, float* num1, float* num2, char* op);
 void calculateResult(float num1, float num2, char op, float* result);
 
 int main(int argc, char* argv[])
 {
+  printf("----------Calculator----------\nType 'quit' to terminate\n\n");
   while (1)
   {
     char* input = getUserInput();
+    if (strcmp(input, "quit") == 0)
+    {
+      free(input);
+      break;
+    }
+
     float num1, num2, result;
     char operator;
     if (checkInput(input, &num1, &num2, &operator) == 0)
@@ -37,7 +44,6 @@ char* getUserInput()
 
   if (fgets(input, input_size, stdin) == NULL)
   {
-    free(input);
     return NULL;
   }
 
@@ -47,13 +53,11 @@ char* getUserInput()
     char* tmp = realloc(input, input_size * sizeof(char));
     if (tmp == NULL)
     {
-      free(input);
       return NULL;
     }
     input = tmp;
     if (fgets(input + strlen(input), input_size - strlen(input), stdin) == NULL)
     {
-      free(input);
       return NULL;
     }
   }
@@ -61,7 +65,7 @@ char* getUserInput()
   return input;
 }
 
-void removeWhiteSpace(char* input)
+int removeWhiteSpace(char* input)
 {
   int count = 0;
   size_t len = strlen(input);
@@ -75,6 +79,10 @@ void removeWhiteSpace(char* input)
 
   // new string = old string without spaces + 1 for '\0'
   char* tmp = malloc(len - count + 1);
+  if (tmp == NULL)
+  {
+    return 1;
+  }
 
   int j = 0;
   for (int i = 0; i < len; i++)
@@ -87,12 +95,16 @@ void removeWhiteSpace(char* input)
   }
   strcpy(input, tmp);
   free(tmp);
+  return 0;
 }
 
 int checkInput(char* input, float* num1, float* num2, char* op)
 {
   char operators[] = "+-*/";
-  removeWhiteSpace(input);
+  if (removeWhiteSpace(input) == 1)
+  {
+    return 1;
+  }
 
   if (sscanf(input, "%f%c%f", num1, op, num2) != 3)
   {
